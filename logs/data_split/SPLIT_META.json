@@ -1,0 +1,65 @@
+{
+  "rates": {
+    "grpo_train": 0.6,
+    "grpo_val": 0.1,
+    "sft_train": 0.25,
+    "sft_val": 0.05,
+    "test": 0.4
+  },
+  "datasets": {
+    "GSM8K": {
+      "total": 8792,
+      "test": 1319,
+      "remaining": 7473,
+      "grpo_train": 4483,
+      "grpo_val": 747,
+      "sft_train": 1868,
+      "sft_val": 375,
+      "test_source": "test.json",
+      "file_order": [
+        "test.json",
+        "train.json"
+      ],
+      "file_lengths": {
+        "test.json": 1319,
+        "train.json": 7473
+      }
+    },
+    "MATH": {
+      "total": 1292,
+      "test": 546,
+      "remaining": 746,
+      "grpo_train": 447,
+      "grpo_val": 74,
+      "sft_train": 186,
+      "sft_val": 39,
+      "test_source": "test.json",
+      "file_order": [
+        "test.json",
+        "train.json"
+      ],
+      "file_lengths": {
+        "test.json": 546,
+        "train.json": 746
+      }
+    },
+    "DEEPMATH-103K": {
+      "total": 103022,
+      "test": 41208,
+      "remaining": 61814,
+      "grpo_train": 37088,
+      "grpo_val": 6181,
+      "sft_train": 15453,
+      "sft_val": 3092,
+      "test_source": "rate",
+      "file_order": [
+        "train.json"
+      ],
+      "file_lengths": {
+        "train.json": 103022
+      }
+    }
+  },
+  "keep_test": false,
+  "seed": 42
+}
