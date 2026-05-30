@@ -9,6 +9,8 @@ from tqdm import tqdm
 
 from datasets import Dataset
 
+from reward.utils import build_negative_samples
+
 
 def _load_env(env_path: Path) -> Dict[str, str]:
 	env: Dict[str, str] = {}
@@ -200,6 +202,100 @@ class DataLoader:
 		val_dataset = Dataset.from_list(normalize_rows(val_rows))
 
 		return train_dataset, val_dataset, meta_summary
+
+
+
+class BatchLoader:
+	"""Create batch generators from PRM SFT datasets."""
+
+	def __init__(self, datasets, config=None) -> None:
+		self.datasets = datasets
+		self.config = config
+		self.batch_size = int(getattr(config, "batch_size", 1)) if config else 1
+		self.sub_batch_size = int(getattr(config, "sub_batch_size", 1)) if config else 1
+		self.batch_index: List[List[int]] = []
+		self.current_batch: List[dict] = []
+		seed = getattr(config, "seed", 42) if config else 42
+		self.rng = random.Random(seed)
+
+	def _require_config(self) -> None:
+		if self.config is None:
+			raise ValueError("BatchLoader config is required")
+
+	def batch_generator(self) -> int:
+		self.batch_index = []
+		indices = list(range(len(self.datasets)))
+		if getattr(self.config, "shuffle", False):
+			self.rng.shuffle(indices)
+		for start in range(0, len(indices), self.batch_size):
+			self.batch_index.append(indices[start : start + self.batch_size])
+		return len(self.batch_index)
+
+	def sub_batch_generator(self, idx: int, epoch: int = 0) -> int:
+		self._require_config()
+		shuffle = getattr(self.config, "shuffle", False)
+		if not self.batch_index:
+			self.batch_generator()
+		if idx < 0 or idx >= len(self.batch_index):
+			self.current_batch = []
+			return 0
+
+		batch_rows = self.datasets.select(self.batch_index[idx])
+		pos_samples: List[dict] = []
+		pos_meta: List[dict] = []
+		batch_answers: List[List[str]] = []
+
+		for row in batch_rows:
+			question = row.get("question", "")
+			answers = row.get("answer") or []
+			if not answers:
+				continue
+			answer_idx = epoch % len(answers)
+			selected = answers[answer_idx]
+			steps = [str(step).strip() for step in selected if str(step).strip()]
+			if not steps:
+				continue
+			batch_answers.append(steps)
+			batch_answer_idx = len(batch_answers) - 1
+
+			former = ""
+			for step_idx, step in enumerate(steps):
+				pos_samples.append(
+					{
+						"idx": step_idx,
+						"question": question,
+						"former": former,
+						"next": step,
+						"label": 1,
+					}
+				)
+				pos_meta.append(
+					{
+						"answer_steps": steps,
+						"step_idx": step_idx,
+						"batch_idx": batch_answer_idx,
+					}
+				)
+				former = f"{former}\n{step}" if former else step
+
+		neg_samples = build_negative_samples(pos_samples, pos_meta, batch_answers, self.config, self.rng)
+		all_samples = pos_samples + neg_samples
+		if shuffle:
+			self.rng.shuffle(all_samples)
+		self.current_batch = all_samples
+		return len(self.current_batch)
+
+	def forward(self) -> dict:
+		if not self.current_batch:
+			return None
+		count = min(self.sub_batch_size, len(self.current_batch))
+		samples = [self.current_batch.pop(0) for _ in range(count)]
+		inputs = [json.dumps(sample, ensure_ascii=False) for sample in samples]
+		labels = [sample["label"] for sample in samples]
+		return {"input": inputs, "label": labels}
+
+	def __len__(self) -> int:
+		return len(self.batch_index)
 
 
 if __name__ == "__main__":

@@ -3,13 +3,7 @@ services:
     build: .
     image: mathrl:cu118
     container_name: mathrl
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    gpus: all
     shm_size: "8gb"
     stdin_open: true
     tty: true
