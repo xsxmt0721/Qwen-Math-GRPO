@@ -31,7 +31,13 @@ docker exec -it mathrl /bin/bash
 python scripts/data_split.py --data GSM8K MATH DEEPMATH-103K --keep-test
 ```
 
+- 运行以下脚本可以查看当前的数据集在传入模型时实际的序列长度分布
+```
+python -m scripts.get_length_distribution
+```
+
 ## 训练奖励模型
 ```
 python -m reward.train
 ```
+

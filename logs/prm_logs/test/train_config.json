@@ -1,0 +1,43 @@
+{
+  "log_dir": "/workspace/logs/prm_logs/test",
+  "device": "cuda",
+  "batch_size": 4,
+  "sub_batch_size": 4,
+  "min_skip_steps": 1,
+  "max_skip_steps": 3,
+  "neg_distribution_step": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "neg_distribution_error": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+  ],
+  "neg_distribution_num": 3,
+  "latex_keywords": [
+    "\\frac",
+    "\\cdot",
+    "\\times",
+    "\\sqrt",
+    "\\sum",
+    "\\prod",
+    "\\int"
+  ],
+  "epochs": 3,
+  "learning_rate": 0.0002,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "grad_accum_steps": 1,
+  "max_length": 1024,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "log_step": 10,
+  "seed": 42,
+  "shuffle": true
+}

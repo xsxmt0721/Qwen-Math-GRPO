@@ -24,8 +24,7 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 WORKDIR /workspace
 
 COPY requirements.txt /workspace/requirements.txt
-RUN --mount=type=cache,target=/root/.cache/pip \
-	pip install -r /workspace/requirements.txt
+RUN pip install -r /workspace/requirements.txt
 
 COPY . /workspace
 

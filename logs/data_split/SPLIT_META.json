@@ -42,22 +42,6 @@
         "test.json": 546,
         "train.json": 746
       }
-    },
-    "DEEPMATH-103K": {
-      "total": 103022,
-      "test": 41208,
-      "remaining": 61814,
-      "grpo_train": 37088,
-      "grpo_val": 6181,
-      "sft_train": 15453,
-      "sft_val": 3092,
-      "test_source": "rate",
-      "file_order": [
-        "train.json"
-      ],
-      "file_lengths": {
-        "train.json": 103022
-      }
     }
   },
   "keep_test": false,
