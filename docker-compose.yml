@@ -11,7 +11,6 @@ services:
     environment:
       NVIDIA_VISIBLE_DEVICES: all
       HF_HOME: /cache/hf
-      TRANSFORMERS_CACHE: /cache/hf/transformers
       HF_DATASETS_CACHE: /cache/hf/datasets
       TOKENIZERS_PARALLELISM: "false"
     volumes:

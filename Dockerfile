@@ -23,13 +23,15 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 
 WORKDIR /workspace
 
+ENV PIP_CACHE_DIR=/root/.cache/pip
+
 COPY requirements.txt /workspace/requirements.txt
-RUN pip install -r /workspace/requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+	pip install -r /workspace/requirements.txt
 
 COPY . /workspace
 
 ENV HF_HOME=/cache/hf \
-	TRANSFORMERS_CACHE=/cache/hf/transformers \
 	HF_DATASETS_CACHE=/cache/hf/datasets \
 	TOKENIZERS_PARALLELISM=false \
 	PYTHONUNBUFFERED=1

@@ -18,6 +18,9 @@ cd MathRL/Models
 # 过程奖励模型
 mkdir qwen2.5-1.5b-prm
 hf download Qwen/Qwen2.5-1.5B-Instruct --local-dir qwen2.5-1.5b-prm
+# 基准模型和训练模型的初始模型
+mkdir qwen2.5-7b
+hf download Qwen/Qwen2.5-7B-Instruct --local-dir qwen2.5-7b
 ```
 
 ## 数据划分
@@ -36,8 +39,13 @@ python scripts/data_split.py --data GSM8K MATH DEEPMATH-103K --keep-test
 python -m scripts.get_length_distribution
 ```
 
-## 训练奖励模型
+## 训练奖励模型并评估
 ```
 python -m reward.train
+python -m reward.eval
 ```
-
+## 训练基准参考模型并评估
+```
+python -m ref.train
+python -m ref.eval
+```
