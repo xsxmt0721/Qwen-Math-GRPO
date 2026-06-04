@@ -31,7 +31,8 @@ def build_prompt(
 	data: List[dict],
 	shuffle: bool,
 	all_ans: bool,
-	seed: int
+	seed: int,
+	include_answer: bool = True,
 ) -> Tuple[int, List[dict], List[str], List[str]]:
 	samples: List[dict] = []
 	questions_list: List[str] = []
@@ -49,15 +50,13 @@ def build_prompt(
 			answers = [answers[0]]
 
 		for answer in answers:
-			samples.append(
-				{
-					"messages": [
-						{"role": "system", "content": _SYSTEM_PROMPT},
-						{"role": "user", "content": question},
-						{"role": "assistant", "content": str(answer)},
-					]
-				}
-			)
+			msg = [
+				{"role": "system", "content": _SYSTEM_PROMPT},
+				{"role": "user", "content": question},
+			]
+			if include_answer:
+				msg.append({"role": "assistant", "content": str(answer)})
+			samples.append({"messages": msg})
 			questions_list.append(question)
 			final_answers.append(final_answer)
 

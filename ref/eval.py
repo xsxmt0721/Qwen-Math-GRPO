@@ -69,6 +69,7 @@ if __name__ == "__main__":
         shuffle=eval_config.shuffle,
         transform=eval_config.transform,
         transform_all_ans=eval_config.transform_all_ans,
+        include_answer=False,
         seed=eval_config.seed,
     )
     
@@ -107,8 +108,6 @@ if __name__ == "__main__":
         messages = example["messages"]
         if messages and isinstance(messages[0], list):
             messages = messages[0]
-        if messages and messages[-1]["role"] == "assistant":
-            messages = messages[:-1]
         return tokenizer.apply_chat_template(
             messages,
             tokenize=False,

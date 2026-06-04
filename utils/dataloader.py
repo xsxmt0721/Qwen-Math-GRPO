@@ -26,7 +26,11 @@ def _load_index_list(path: Path) -> List[int]:
 	return indices
 
 
-def _select_first_data_file(file_order: List[str]) -> str:
+def _select_first_data_file(file_order: List[str], prefer_test: bool = False) -> str:
+	if prefer_test:
+		for fname in file_order:
+			if fname == "test.json":
+				return fname
 	for fname in file_order:
 		if fname != "test.json":
 			return fname
@@ -52,6 +56,7 @@ class DataLoader:
 		shuffle: bool = True,
 		transform: bool = True,
 		transform_all_ans: bool = False,
+		include_answer: bool = True,
 		seed: int = 42,
 	) -> None:
 		self.data_dir = Path(data_dir)
@@ -61,6 +66,7 @@ class DataLoader:
 		self.seed = seed
 		self.shuffle = shuffle
 		self.transform_all_ans = transform_all_ans
+		self.include_answer = include_answer
 
 		self.raw_data: List[dict] = []
 		self.data: List[dict] = []
@@ -93,7 +99,7 @@ class DataLoader:
 			if not isinstance(file_order, list) or not isinstance(file_lengths, dict):
 				raise ValueError(f"Invalid meta for dataset {dataset_name}")
 
-			data_file = _select_first_data_file(file_order)
+			data_file = _select_first_data_file(file_order, prefer_test=(self.data_type == "TEST"))
 			offset = _calc_offset(file_order, file_lengths, data_file)
 
 			index_path = self.split_dir / self.data_type / f"{dataset_name}.json"
@@ -120,6 +126,7 @@ class DataLoader:
 			shuffle=self.shuffle,
 			all_ans=self.transform_all_ans,
 			seed=self.seed,
+			include_answer=self.include_answer,
 		)
 		self.data = data_list
 		self.questions = questions

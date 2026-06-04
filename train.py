@@ -434,6 +434,7 @@ if __name__ == "__main__":
         shuffle=train_config.shuffle,
         transform=train_config.transform,
         transform_all_ans=train_config.transform_all_ans,
+        include_answer=False,
         seed=train_config.seed,
     )
     val_loader = DataLoader(
@@ -444,6 +445,7 @@ if __name__ == "__main__":
         shuffle=train_config.shuffle,
         transform=train_config.transform,
         transform_all_ans=train_config.transform_all_ans,
+        include_answer=False,
         seed=train_config.seed,
     )
     
