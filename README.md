@@ -49,3 +49,8 @@ python -m reward.eval
 python -m ref.train
 python -m ref.eval
 ```
+
+## 启动 GRPO 训练
+```
+python -m train
+```

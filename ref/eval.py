@@ -11,6 +11,7 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from utils.dataloader import DataLoader
+from utils.utils import extract_boxed_answer
 
 def _load_env(env_path: Path) -> dict:
     env = {}
@@ -39,7 +40,7 @@ SAVE_DIR: str = env.get("REF_SAVE", "")
 SAVE_PATH = os.path.join(SAVE_DIR, "checkpoint-138")
 
 class eval_config:
-    log_dir = "/workspace/logs/ref_logs/test"
+    log_dir = "/workspace/logs/ref_logs/ref-1.5b"
     
     cuda_use: bool = True
     eval_batch_size: int = 16
@@ -58,33 +59,6 @@ def _get_compute_dtype() -> torch.dtype:
     if torch.cuda.is_available():
         return torch.float16
     return torch.float32
-
-
-def _extract_boxed_answer(text: str) -> str:
-    if not text:
-        return ""
-    # 支持 \boxed{...} 或 \box{...}
-    pattern = r"\\box(?:ed)?\{"
-    matches = list(re.finditer(pattern, text))
-    if not matches:
-        return ""
-    last = matches[-1].end()
-    stack = 1
-    i = last
-    start = last
-    while i < len(text):
-        if text[i] == "{":
-            stack += 1
-        elif text[i] == "}":
-            stack -= 1
-            if stack == 0:
-                return text[start:i].strip()
-        i += 1
-    return ""
-
-def extract_boxed_anwser(text: str) -> str:
-    return _extract_boxed_answer(text)
-
 
 if __name__ == "__main__":
     val_loader = DataLoader(
@@ -172,9 +146,9 @@ if __name__ == "__main__":
             pred_texts = tokenizer.batch_decode(generated, skip_special_tokens=True)
             for offset, pred_text in enumerate(pred_texts):
                 idx = start + offset
-                pred_ans = _extract_boxed_answer(pred_text) or pred_text.strip()
+                pred_ans = extract_boxed_answer(pred_text) or pred_text.strip()
                 gold_text = val_answers[idx] if idx < len(val_answers) else ""
-                gold_ans = _extract_boxed_answer(gold_text) or str(gold_text).strip()
+                gold_ans = extract_boxed_answer(gold_text) or str(gold_text).strip()
                 is_correct = pred_ans == gold_ans
                 if is_correct:
                     correct += 1

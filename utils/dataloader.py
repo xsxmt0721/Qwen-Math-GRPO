@@ -65,6 +65,7 @@ class DataLoader:
 		self.raw_data: List[dict] = []
 		self.data: List[dict] = []
 		self.ans: List[str] = []
+		self.questions: List[str] = []
 		self.num_data = 0
 		self.num_batches = 0
 
@@ -73,6 +74,7 @@ class DataLoader:
 			self.transform()
 		else:
 			self.data = list(self.raw_data)
+			self.questions = [str(item.get("question", "")) for item in self.raw_data]
 			self.ans = [str(item.get("final_answer", "")) for item in self.raw_data]
 			self.num_data = len(self.data)
 			self.num_batches = ceil(self.num_data / self.batch_size) if self.batch_size > 0 else 0
@@ -113,13 +115,14 @@ class DataLoader:
 		self.raw_data = merged
 
 	def transform(self) -> None:
-		num_data, data_list, final_answers = build_prompt(
+		num_data, data_list, questions, final_answers = build_prompt(
 			self.raw_data,
 			shuffle=self.shuffle,
 			all_ans=self.transform_all_ans,
 			seed=self.seed,
 		)
 		self.data = data_list
+		self.questions = questions
 		self.ans = final_answers
 		self.num_data = num_data
 		self.num_batches = ceil(self.num_data / self.batch_size) if self.batch_size > 0 else 0

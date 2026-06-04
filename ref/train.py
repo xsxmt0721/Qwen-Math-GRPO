@@ -35,7 +35,7 @@ MODEL_PATH: str = env.get("BASEMODEL_DIR", "")
 SAVE_PATH: str = env.get("REF_SAVE", "")
 
 class train_config:
-    log_dir = "/workspace/logs/ref_logs/test"
+    log_dir = "/workspace/logs/ref_logs/ref-1.5b"
     
     cuda_use: bool = True
     batch_size: int = 2
