@@ -10,6 +10,7 @@ from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_t
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainerCallback
 from trl import GRPOConfig, GRPOTrainer
+from cppo_trainer import CPPOTrainer
 
 import matplotlib.pyplot as plt
 
@@ -53,25 +54,28 @@ PRM_DIR: str = env.get("PRM_DIR", "")
 PRM_SAVE: str = env.get("PRM_SAVE", "")
 
 class train_config:
-    log_dir = "/workspace/logs/grpo_logs/grpo-1.5b-result-most"
+    log_dir = "/workspace/logs/grpo_logs/cppo-1.5b-result-only"
+
+    # ── CPPO ──
+    cppo_pruning_rate: float = 0.75   # pruning rate P ∈ [0,1); P>0 enables CPPO mode, P=0 = vanilla GRPO
 
     # ── Data ──
-    batch_size: int = 4
-    eval_batch_size: int = 4
+    batch_size: int = 8
+    eval_batch_size: int = 8
     train_data_total: int = 2400
-    eval_data_total: int = 500
+    eval_data_total: int = 100
 
     # ── Reward ──
-    reward_mode: str = "full"  # "full"=PRM过程分+结果分加权 / "result_only"=仅答案匹配，快速验证
-    reward_alpha: float = 0.9
-    reward_beta: float = 0.1
+    reward_mode: str = "result_only"  # "full"=PRM过程分+结果分加权 / "result_only"=仅答案匹配，快速验证
+    reward_alpha: float = 1.0
+    reward_beta: float = 0.0
     reward_num_wrong_stop: int = 1
     reward_use_prefix_kv_cache: bool = True
 
     # ── GRPO ──
-    num_generations: int = 4          # 每个 prompt 采样 K 条 completion（group size）
+    num_generations: int = 8          # 每个 prompt 采样 K 条 completion（group size）
     max_completion_length: int = 512  # 单条 completion 最大 token 数
-    kl_beta: float = 0.04             # KL 散度惩罚系数
+    kl_beta: float = 0.04            # KL 散度惩罚系数
     temperature: float = 1.0          # 生成温度（越大越多样）
     # top_p: float = 0.95             # nucleus sampling
 
@@ -626,7 +630,8 @@ if __name__ == "__main__":
         )
 
     # 初始化 GRPO Trainer（ref_model 由 trainer 内部自动从 policy_model 复制）
-    trainer = GRPOTrainer(
+    trainer = CPPOTrainer(
+        cppo_pruning_rate=train_config.cppo_pruning_rate,
         model=policy_model,
         reward_funcs=[reward_func_bound],
         args=grpo_config,

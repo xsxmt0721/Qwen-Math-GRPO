@@ -1,0 +1,30 @@
+{
+  "config": {
+    "log_dir": "/workspace/logs/grpo_logs/grpo-1.5b-result-main",
+    "eval_batch_size": 4,
+    "max_test_size": 300,
+    "max_length": 1024,
+    "max_completion_length": 512,
+    "num_generations": 3,
+    "temperature": 1.0,
+    "prm_num_wrong_stop": 1,
+    "prm_use_prefix_kv_cache": true,
+    "seed": 42,
+    "transform": true,
+    "transform_all_ans": false
+  },
+  "GSM8K": {
+    "@1-Accuracy": 0.61,
+    "@3-Accuracy": 0.79,
+    "@1-Steps-Accuracy": 0.846019776137379,
+    "@3-Steps-Avg-Accuracy": 0.8632376005520876,
+    "avg_generation_length": 450.9
+  },
+  "MATH": {
+    "@1-Accuracy": 0.12333333333333334,
+    "@3-Accuracy": 0.20333333333333334,
+    "@1-Steps-Accuracy": 0.7316163929896549,
+    "@3-Steps-Avg-Accuracy": 0.7201810711428044,
+    "avg_generation_length": 575.5633333333334
+  }
+}

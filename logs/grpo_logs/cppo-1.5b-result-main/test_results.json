@@ -1,0 +1,30 @@
+{
+  "config": {
+    "log_dir": "/workspace/logs/grpo_logs/cppo-1.5b-result-main",
+    "eval_batch_size": 4,
+    "max_test_size": 300,
+    "max_length": 1024,
+    "max_completion_length": 512,
+    "num_generations": 3,
+    "temperature": 1.0,
+    "prm_num_wrong_stop": 1,
+    "prm_use_prefix_kv_cache": true,
+    "seed": 42,
+    "transform": true,
+    "transform_all_ans": false
+  },
+  "GSM8K": {
+    "@1-Accuracy": 0.6833333333333333,
+    "@3-Accuracy": 0.83,
+    "@1-Steps-Accuracy": 0.9156302635649852,
+    "@3-Steps-Avg-Accuracy": 0.8912505082003567,
+    "avg_generation_length": 456.4866666666667
+  },
+  "MATH": {
+    "@1-Accuracy": 0.13666666666666666,
+    "@3-Accuracy": 0.19,
+    "@1-Steps-Accuracy": 0.7127905459208483,
+    "@3-Steps-Avg-Accuracy": 0.6974512080460118,
+    "avg_generation_length": 575.5633333333334
+  }
+}

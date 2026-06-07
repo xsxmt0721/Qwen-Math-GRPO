@@ -52,7 +52,7 @@ def _save_json(path: Path, obj: Any) -> None:
 
 class test_config:
     # ── Paths ──
-    log_dir: str = "/workspace/logs/grpo_logs/grpo-1.5b"
+    log_dir: str = "/workspace/logs/grpo_logs/cppo-1.5b-result-only"
 
     # ── Data ──
     eval_batch_size: int = 4           # prompts per generation batch
@@ -180,7 +180,9 @@ def evaluate() -> None:
     DATA_DIR: str = env.get("DATA_DIR", "/data")
     SPLIT_DIR: str = env.get("DATA_SPLIT_DIR", "/workspace/logs/data_split")
     MODEL_PATH: str = env.get("BASEMODEL_DIR", "")
-    GRPO_SAVE: str = env.get("GRPO_SAVE", "")
+    GRPO_PATH: str = env.get("GRPO_SAVE", "")
+    CHECKPOINT_DIR: str = env.get("CHECKPOINT_DIR", "checkpoint-200")
+    GRPO_SAVE: str = os.path.join(GRPO_PATH, CHECKPOINT_DIR)
     PRM_DIR: str = env.get("PRM_DIR", "")
     PRM_SAVE: str = env.get("PRM_SAVE", "")
 
