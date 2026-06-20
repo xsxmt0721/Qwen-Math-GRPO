@@ -25,6 +25,13 @@ hf download Qwen/Qwen2.5-7B-Instruct --local-dir qwen2.5-7b
 
 ## 数据划分
 
+- 创建 docker 容器
+
+```
+docker compose build
+docker compose up -d
+```
+
 - 进入容器
 ```
 docker exec -it mathrl /bin/bash
