@@ -23,14 +23,16 @@ GRPO（Group Relative Policy Optimization）是 DeepSeek-R1 中提出的一种�
 
 给定一个提示 $q$，策略模型 $\pi_\theta$ 生成 $K$ 条补全 $\{o_1, o_2, \ldots, o_K\}$，每条补全对应一个奖励值 $\{r_1, r_2, \ldots, r_K\}$。GRPO 的组内相对优势（group-relative advantage）定义为：
 
-$$\hat{A}_{i} = \frac{r_i - \text{mean}(\{r_1, \ldots, r_K\})}{\text{std}(\{r_1, \ldots, r_K\})}$$
-
+$$
+\hat{A}_{i} = \frac{r_i - \text{mean}(\{r_1, \ldots, r_K\})}{\text{std}(\{r_1, \ldots, r_K\})}
+$$
 即每条补全的奖励值减去组内均值后除以组内标准差。这种归一化方式使得模型能够学习到同一提示下不同补全之间的相对优劣，而非奖励值的绝对大小。
 
 GRPO 的策略梯度损失函数为：
 
-$$\mathcal{L}_{\text{GRPO}}(\theta) = -\frac{1}{\sum_i |o_i|} \sum_i \sum_t \min\left(\rho_{i,t} \hat{A}_i, \;\text{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon) \hat{A}_i\right) + \beta \cdot D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}})$$
-
+$$
+\mathcal{L}_{\text{GRPO}}(\theta) = -\frac{1}{\sum_i |o_i|} \sum_i \sum_t \min\left(\rho_{i,t} \hat{A}_i, \;\text{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon) \hat{A}_i\right) + \beta \cdot D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}})
+$$
 其中 $\rho_{i,t} = \frac{\pi_\theta(o_{i,t} | q, o_{i,<t})}{\pi_{\text{old}}(o_{i,t} | q, o_{i,<t})}$ 为重要性采样比率，$\beta$ 为 KL 散度惩罚系数，用于约束策略模型不偏离参考模型过远。
 
 GRPO 的主要优点在于：
@@ -80,16 +82,18 @@ CPPO 引入剪枝率 $P \in [0, 1)$，在每个大小为 $G$ 的生成组中：
 
 该模式下，奖励完全基于模型输出的最终答案是否正确：
 
-$$r_{\text{result}} = \begin{cases} 1.0, & \text{若 } \text{extract}(o_i) = \text{answer} \text{ 且非空} \\ 0.0, & \text{否则} \end{cases}$$
-
+$$
+r_{\text{result}} = \begin{cases} 1.0, & \text{若 } \text{extract}(o_i) = \text{answer} \text{ 且非空} \\ 0.0, & \text{否则} \end{cases}
+$$
 具体实现中，使用正则表达式提取补全文本中最后一个 `\boxed{...}` 的内容作为预测答案，与 ground truth 进行字符串匹配。该模式计算效率高，无需额外的 PRM 模型，适用于快速实验验证。
 
 #### 2. 过程-结果复合奖励（Full 模式）
 
 该模式下，奖励由两部分加权组合：
 
-$$r = \alpha \cdot r_{\text{result}} + \beta \cdot r_{\text{steps}}$$
-
+$$
+r = \alpha \cdot r_{\text{result}} + \beta \cdot r_{\text{steps}}
+$$
 其中：
 - $\alpha$ 为结果奖励权重（默认 0.7）；
 - $\beta$ 为过程奖励权重（默认 0.3）；
@@ -469,8 +473,9 @@ Soft-CPPO 的核心思想是将硬剪枝替换为**基于优势幅度的概率�
 
 对于大小为 $G$ 的生成组，样本 $i$ 的参与概率定义为：
 
-$$p_i = \lambda \cdot \frac{|\hat{A}_i|}{\sum_{j=1}^{G} |\hat{A}_j|} + (1 - \lambda) \cdot \frac{1}{G}$$
-
+$$
+p_i = \lambda \cdot \frac{|\hat{A}_i|}{\sum_{j=1}^{G} |\hat{A}_j|} + (1 - \lambda) \cdot \frac{1}{G}
+$$
 其中 $\lambda \in [0, 1]$ 为混合系数，控制硬剪枝与均匀采样之间的插值程度：
 - $\lambda = 0$：所有样本等概率参与，退化为标准 GRPO；
 - $\lambda = 1$：概率完全正比于 $|\hat{A}|$，优势幅度越大的样本越容易被采样；
@@ -485,8 +490,9 @@ $$p_i = \lambda \cdot \frac{|\hat{A}_i|}{\sum_{j=1}^{G} |\hat{A}_j|} + (1 - \lam
 
 实验表明，训练崩塌的直接前兆是 KL 散度的快速爬升。因此，Soft-CPPO 引入 KL 散度监控机制，动态调整混合系数 $\lambda$：
 
-$$\lambda_t = \lambda_{\text{max}} \cdot \sigma\left(\kappa \cdot (\tau - \text{KL}_t)\right)$$
-
+$$
+\lambda_t = \lambda_{\text{max}} \cdot \sigma\left(\kappa \cdot (\tau - \text{KL}_t)\right)
+$$
 其中：
 - $\lambda_{\text{max}} \in (0, 1]$ 为最大混合系数；
 - $\text{KL}_t$ 为当前步的 KL 散度估计值；
@@ -500,12 +506,14 @@ $$\lambda_t = \lambda_{\text{max}} \cdot \sigma\left(\kappa \cdot (\tau - \text{
 
 在 Soft-CPPO 框架下，损失函数中每个样本的贡献按其采样权重 $w_i$ 进行缩放：
 
-$$w_i = \frac{p_i}{\frac{1}{G} \sum_{j=1}^{G} p_j}$$
-
+$$
+w_i = \frac{p_i}{\frac{1}{G} \sum_{j=1}^{G} p_j}
+$$
 最终的策略梯度损失为：
 
-$$\mathcal{L}_{\text{Soft-CPPO}} = \frac{\sum_{i=1}^{G} w_i \cdot \mathcal{L}_i}{\sum_{i=1}^{G} w_i}$$
-
+$$
+\mathcal{L}_{\text{Soft-CPPO}} = \frac{\sum_{i=1}^{G} w_i \cdot \mathcal{L}_i}{\sum_{i=1}^{G} w_i}
+$$
 其中 $\mathcal{L}_i$ 为样本 $i$ 的逐 token 策略梯度损失（含 KL 正则项）。权重归一化确保了不同 $\lambda$ 下损失的量级一致性。
 
 ### 预期效果与未来验证方向

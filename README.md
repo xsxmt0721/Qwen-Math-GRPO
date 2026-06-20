@@ -54,3 +54,13 @@ python -m ref.eval
 ```
 python -m train
 ```
+
+## 测试
+```
+python -m test
+```
+
+## 展示真实输出
+```
+python -m presentation
+```
